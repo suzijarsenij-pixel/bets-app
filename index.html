@@ -16,70 +16,78 @@
         }
         .container {
             max-width: 400px;
-            margin: 0 auto;
+            margin: auto;
             background: var(--tg-theme-secondary-bg-color, #212d3b);
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         h1 { font-size: 20px; margin-bottom: 20px; color: #31b545; }
-        .stats { font-size: 16px; margin: 15px 0; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
-        .odds-container { display: flex; justify-content: space-around; margin: 20px 0; }
-        .odd-box { background: #2b394a; padding: 10px; border-radius: 10px; width: 40%; cursor: pointer; border: 2px solid transparent; }
-        .odd-box.selected { border-color: #31b545; background: #1c2733; }
-        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b394a; background: #1c2733; color: white; text-align: center; }
+        .stats { font-size: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        .odds-container { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .team-box { background: #2b394a; padding: 10px; border-radius: 10px; width: 45%; cursor: pointer; border: 2px solid transparent; }
+        .team-box.selected { border-color: #31b545; background: #1c2733; }
+        input { width: 80%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #2b394a; background: #1c2733; color: white; text-align: center; }
         button { background: #31b545; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 85%; margin-top: 10px; }
-        button:disabled { background: #555; }
+        button:disabled { background: #555555; cursor: not-allowed; }
         #status-msg { margin-top: 15px; font-weight: bold; min-height: 20px; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <h1>🏆 СИМУЛЯТОР СТАВОК 🏆</h1>
+
     <div class="stats">
         <div>Баланс: <span id="balance">1000</span> очков</div>
-        <div style="font-size: 13px; color: #aaa; margin-top: 5px;">Статус: <span id="rank">🌱 Новичок</span></div>
+        <div style="font-size: 13px; color: #aaa; margin-top: 5px;">Статус: <span id="rank">Новичок</span></div>
     </div>
-    <p>Выберите команду для ставки:</p>
+
+    <p>Выберите команду для ставок:</p>
     <div class="odds-container">
-        <div class="odd-box" id="teamA" onclick="selectTeam('1')">
+        <div class="team-box" id="teamA" onclick="selectTeam('1')">
             <b>Команда А</b><br>Кэф: <span id="oddsA">1.50</span>
         </div>
-        <div class="odd-box" id="teamB" onclick="selectTeam('2')">
+        <div class="team-box" id="teamB" onclick="selectTeam('2')">
             <b>Команда Б</b><br>Кэф: <span id="oddsB">2.10</span>
         </div>
     </div>
+
     <input type="number" id="betInput" placeholder="Сумма ставки">
-    <button onclick="makeAllIn()" style="background: #2b394a; margin-bottom: 10px; padding: 6px; width: 85%;">Поставить всё (All-In)</button>
-    <button id="playBtn" onclick="playMatch()">🎲 Начать матч</button>
+    <button onclick="makeAllIn()" style="background: #2b394a; margin-bottom: 10px; padding: 6px; font-size: 14px;">Поставить всё (All-In)</button>
+    <button id="playBtn" onclick="playMatch()">Начать матч</button>
+
     <div id="status-msg"></div>
 </div>
+
 <script>
     const tg = window.Telegram.WebApp;
     if (tg) { tg.expand(); }
 
-    let points = 1000;
-    let selectedTeam = '';
+    let balance = 1000;
+    let selectedTeam = "";
     let currentOddsA = 0;
     let currentOddsB = 0;
-
-    function generateOdds() {
-        currentOddsA = (Math.random() * (2.5 - 1.2) + 1.2).toFixed(2);
-        currentOddsB = (Math.random() * (4.0 - 1.8) + 1.8).toFixed(2);
+function generateOdds() {
+        currentOddsA = parseFloat((Math.random() * (2.5 - 1.2) + 1.2).toFixed(2));
+        currentOddsB = parseFloat((Math.random() * (4.0 - 1.8) + 1.8).toFixed(2));
         document.getElementById('oddsA').innerText = currentOddsA;
         document.getElementById('oddsB').innerText = currentOddsB;
     }
 
     function updateUI() {
-        document.getElementById('balance').innerText = points;
-        let rank = "🌱 Новичок";
-        if (points >= 5000) rank = "🎰 Легенда Лас-Вегаса";
-        else if (points >= 2500) rank = "🎩 Профессиональный Каппер";
-        else if (points >= 1500) rank = "📈 Опытный Игрок";
-        else if (points < 500) rank = "📉 На грани банкротства";
+        document.getElementById('balance').innerText = balance;
+
+        let rank = "Новичок";
+        if (balance >= 5000) rank = "Легенда Лас-Вегаса";
+        else if (balance >= 2500) rank = "Профессиональный Каппер";
+        else if (balance >= 1500) rank = "Опытный игрок";
+        else if (balance >= 500) rank = "На грани банкротства";
+
         document.getElementById('rank').innerText = rank;
-        if (points <= 0) {
-            document.getElementById('status-msg').innerHTML = "<span style='color:red;'>💀 Игра окончена! Вы обанкротились.</span>";
+
+        if (balance <= 0) {
+            document.getElementById('status-msg').innerHTML = "<span style='color:red;'>Игра окончена! Вы обанкротились.</span>";
             document.getElementById('playBtn').disabled = true;
         }
     }
@@ -87,26 +95,25 @@
     function selectTeam(team) {
         selectedTeam = team;
         document.getElementById('teamA').classList.remove('selected');
-document.getElementById('teamB').classList.remove('selected');
-        
+        document.getElementById('teamB').classList.remove('selected');
+
         if (team === '1') document.getElementById('teamA').classList.add('selected');
         if (team === '2') document.getElementById('teamB').classList.add('selected');
     }
-    }
 
     function makeAllIn() {
-        document.getElementById('betInput').value = points;
+        document.getElementById('betInput').value = balance;
     }
 function playMatch() {
         const betInput = document.getElementById('betInput');
         const bet = parseInt(betInput.value);
-        const msg = document.getElementById('status-msg');
+        const message = document.getElementById('status-msg');
 
-        if (!selectedTeam) { msg.innerText = "❌ Выберите команду!"; return; }
-        if (isNaN(bet) || bet <= 0) { msg.innerText = "❌ Введите корректную ставку!"; return; }
-        if (bet > points) { msg.innerText = "❌ Недостаточно очков!"; return; }
+        if (!selectedTeam) { message.innerText = "❌ Выберите команду!"; return; }
+        if (isNaN(bet) || bet <= 0) { message.innerText = "❌ Введите правильную ставку!"; return; }
+        if (bet > balance) { message.innerText = "❌ Недостаточно очков!"; return; }
 
-        msg.innerText = "🎲 Матч идет...";
+        message.innerText = "⏳ Матч идёт...";
         document.getElementById('playBtn').disabled = true;
 
         setTimeout(() => {
@@ -114,25 +121,27 @@ function playMatch() {
             const winnerName = winner === '1' ? 'Команда А' : 'Команда Б';
 
             if (selectedTeam === winner) {
-                const coef = winner === '1' ? currentOddsA : currentOddsB;
-                const earned = Math.floor(bet * coef) - bet;
-                points += earned;
-                msg.innerHTML = 🎉 Победила ${winnerName}!<br><span style='color:#31b545;'>💰 Вы выиграли +${earned} очков!</span>;
+                const odds = winner === '1' ? currentOddsA : currentOddsB;
+                const profit = Math.floor(bet * odds) - bet;
+                balance += profit;
+                message.innerHTML = 🎉 ${winnerName} выиграла! <br><span style='color:#31b545;'>Вы выиграли +${profit} очков!</span>;
             } else {
-                points -= bet;
-                msg.innerHTML = 🎉 Победила ${winnerName}!<br><span style='color:red;'>📉 Вы проиграли -${bet} очков.</span>;
+                balance -= bet;
+                message.innerHTML = 😔 ${winnerName} выиграла! <br><span style='color:red;'>Вы проиграли -${bet} очков.</span>;
             }
 
-            selectedTeam = '';
+            selectedTeam = "";
             document.getElementById('teamA').classList.remove('selected');
             document.getElementById('teamB').classList.remove('selected');
-            betInput.value = '';
+            betInput.value = "";
+
             document.getElementById('playBtn').disabled = false;
             generateOdds();
             updateUI();
         }, 1000);
     }
 
+    // Инициализация при старте
     generateOdds();
     updateUI();
 </script>
