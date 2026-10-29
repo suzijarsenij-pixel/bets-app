@@ -87,7 +87,8 @@
     function selectTeam(team) {
         selectedTeam = team;
         document.getElementById('teamA').classList.remove('selected');
-        document.getElementById('teamB').classList.remove('selected');
+document.getElementById('teamB').classList.remove('selected');
+        
         if (team === '1') document.getElementById('teamA').classList.add('selected');
         if (team === '2') document.getElementById('teamB').classList.add('selected');
     }
